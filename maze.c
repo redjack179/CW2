@@ -47,7 +47,7 @@ int create_maze(maze *this, int height, int width)
 {   
     this->height = height;
     this->width = width;
-    this->map = (char*)calloc(height,width);
+    this->map = (char**)calloc(height,width);
     if(this->map != NULL){
         return 0;
     }else{
@@ -63,7 +63,6 @@ int create_maze(maze *this, int height, int width)
 void free_maze(maze *this)
 {
     free(this->map);
-    return 0;
 }
 
 /**
@@ -109,6 +108,7 @@ int get_width(FILE *file)
  */
 int get_height(FILE *file)
 {
+    //使用fseek和
     char line[MAX_DIM];
     int count=0;
     int data[MAX_DIM];
@@ -210,6 +210,40 @@ void print_maze(maze *this, coord *player)
  */
 void move(maze *this, coord *player, char direction)
 {
+    char *operate = direction;
+    player->x = this->start.x;
+    player->y = this->start.y;
+    for(int i = 0 ;i<sizeof(direction);i++){  
+        if(operate == 'W'||operate == 'w'){
+            player->y -= 1;
+            if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
+                return 0;
+            }
+            operate++;
+        }
+        else if(operate == 'A'||operate == 'a'){
+            player->x -= 1;
+            if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
+                return 0;
+            }
+            operate++;
+        }
+        else if(operate == 'S'||operate == 's'){
+            player->y += 1;
+            if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
+                return 0;
+            }
+            operate++;
+        }
+        else if(operate == 'D'||operate == 'd'){
+            player->x += 1;
+            if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
+                return 0;
+            }
+            operate++;
+        }
+        
+    }
 
 }
 
@@ -222,6 +256,11 @@ void move(maze *this, coord *player, char direction)
  */
 int has_won(maze *this, coord *player)
 {
+    if(player->x == this->end.x && player->y == this->end.y){
+        return 1;
+    }else{
+        return 0;
+    }
 }
 
 int main()
