@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // defines for max and min permitted dimensions
 #define MAX_DIM 100
@@ -61,6 +62,8 @@ int create_maze(maze *this, int height, int width)
  */
 void free_maze(maze *this)
 {
+    free(this->map);
+    return 0;
 }
 
 /**
@@ -70,7 +73,32 @@ void free_maze(maze *this)
  * @return int 0 for error, or a valid width (5-100)
  */
 int get_width(FILE *file)
-{
+{   
+    char line[MAX_DIM];
+    int maze_width[MAX_DIM];
+    int i = 0;
+    int length;
+    int isEquals = 1;
+    while(fgets(line, sizeof(line), file))
+    {
+        if (maze_width >= MIN_DIM && maze_width <= MAX_DIM)
+        {
+            maze_width[i] = strlen(line);
+            i++;
+        }
+    }
+    length = sizeof(maze_width)/sizeof(maze_width[0]);
+    for(int j = 0;j<length-1;j++){
+        if(maze_width[j]!=maze_width[j+1]){
+            isEquals = 0;
+        }
+    }
+    fclose(file);
+    if(isEquals){
+        return maze_width[0];
+    }else{
+        return 0;
+    }
 }
 
 /**
@@ -81,6 +109,35 @@ int get_width(FILE *file)
  */
 int get_height(FILE *file)
 {
+    char line[MAX_DIM];
+    int count=0;
+    int data[MAX_DIM];
+    int i = 0;
+    int length;
+    int isEquals = 1;
+    while(fgets(line,sizeof(line),file)){
+        data[i] = strlen(line);
+        i++;
+        count++;
+    }
+    length = sizeof(data)/sizeof(data[0]);
+    for(int j = 0;j<length;j++){
+        if(data[j] != data[j+1]){
+            isEquals = 0;
+        }
+    }
+    fclose(file);
+    if(count<=MAX_DIM&&count>=MIN_DIM){
+        if(isEquals){
+            return count;
+        }else{
+            return 0;
+        }
+    }else
+    {
+        return 0;
+    }
+    
 }
 
 /**
