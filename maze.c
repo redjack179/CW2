@@ -80,7 +80,7 @@ int get_width(FILE *file)
     int isEquals = 1;
     while(fgets(line, sizeof(line), file))
     {
-        if (maze_width >= MIN_DIM && maze_width <= MAX_DIM)
+        if (maze_width[i] >= MIN_DIM && maze_width[i] <= MAX_DIM)
         {
             maze_width[i] = strlen(line);
             i++;
@@ -154,7 +154,7 @@ int read_maze(maze *this, FILE *file)
     this->width = get_width(file);
     fseek(file,0,SEEK_SET);
     for(int i=0;i<this->height;i++){
-        fgets(this->map,this->width,file);
+        fgets(this->map[i],this->width,file);
         this->map[i][this->width] = '\0';
         for(int j = 0;j<this->width;j++){
             if(this->map[i][j] == 'S'){
@@ -263,22 +263,53 @@ int has_won(maze *this, coord *player)
     }
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     // check args
-
+    if (argc != 2)
+    {
+        fprintf(stderr, "Usage: ./maze <mazefile path>\n");
+        return EXIT_ARG_ERROR;
+    }
     // set up some useful variables (you can rename or remove these if you want)
     coord *player;
     maze *this_maze = malloc(sizeof(maze));
     FILE *f;
 
     // open and validate mazefile
-
+    f = fopen(argv[1], "r");
+    if (!f)
+    {
+        return EXIT_FILE_ERROR;
+    }
     // read in mazefile to struct
-
+    if (read_maze(this_maze, f))
+    {
+        fprintf(stderr, "Failed to read maze file\n");
+        fclose(f);
+        return EXIT_MAZE_ERROR;
+    }
+    fclose(f);
+    player->x = this_maze->start.x;
+    player->y = this_maze->start.y;
     // maze game loop
-
-    // win
-
+    char input;
+    while (1)
+    {
+        scanf(" %c", &input);
+        if (input == 'M' || input == 'm')
+        {
+            print_maze(&this_maze, &player);
+        }
+        move(&this_maze, &player, input);
+        // win
+        if (has_won(&this_maze, &player))
+        {
+            printf("Congratulations, you have reached the exit!\n");
+            break;
+        }
+    }
     // return, free, exit
+    free_maze(&this_maze);
+    return EXIT_SUCCESS;
 }
