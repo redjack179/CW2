@@ -149,6 +149,27 @@ int get_height(FILE *file)
  */
 int read_maze(maze *this, FILE *file)
 {
+    this->height = get_height(file);
+    fseek(file,0,SEEK_SET);
+    this->width = get_width(file);
+    fseek(file,0,SEEK_SET);
+    for(int i=0;i<this->height;i++){
+        fgets(this->map,this->width,file);
+        this->map[i][this->width] = '\0';
+        for(int j = 0;j<this->width;j++){
+            if(this->map[i][j] == 'S'){
+                this->start.x = j;
+                this->start.y = i;
+            }
+            if(this->map[i][j] == 'E'){
+                this->end.x = j;
+                this->end.y = i;
+            }
+        }
+    }
+    return 0;
+
+
 }
 
 /**
@@ -189,6 +210,7 @@ void print_maze(maze *this, coord *player)
  */
 void move(maze *this, coord *player, char direction)
 {
+
 }
 
 /**
