@@ -210,41 +210,36 @@ void print_maze(maze *this, coord *player)
  */
 void move(maze *this, coord *player, char direction)
 {
-    char *operate = direction;
     player->x = this->start.x;
-    player->y = this->start.y;
-    for(int i = 0 ;i<sizeof(direction);i++){  
-        if(operate == 'W'||operate == 'w'){
-            player->y -= 1;
-            if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
-                return 0;
-            }
-            operate++;
-        }
-        else if(operate == 'A'||operate == 'a'){
-            player->x -= 1;
-            if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
-                return 0;
-            }
-            operate++;
-        }
-        else if(operate == 'S'||operate == 's'){
+    player->y = this->start.y;  
+    if(direction == 'W'||direction == 'w'){
+        player->y -= 1;
+        if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
             player->y += 1;
-            if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
-                return 0;
-            }
-            operate++;
+            printf("inavlid move");
         }
-        else if(operate == 'D'||operate == 'd'){
-            player->x += 1;
-            if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
-                return 0;
-            }
-            operate++;
-        }
-        
     }
-
+    else if(direction == 'A'||direction == 'a'){
+        player->x -= 1;
+        if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
+            player->x += 1;
+            printf("inavlid move");
+        }
+    }
+    else if(direction == 'S'||direction == 's'){
+        player->y += 1;
+        if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
+            player->y -= 1;
+            printf("inavlid move");
+        }
+    }
+    else if(direction == 'D'||direction == 'd'){
+        player->x += 1;
+        if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
+            player->x -= 1;
+            printf("inavlid move");
+        }
+    }     
 }
 
 /**
@@ -299,17 +294,17 @@ int main(int argc, char *argv[])
         scanf(" %c", &input);
         if (input == 'M' || input == 'm')
         {
-            print_maze(&this_maze, &player);
+            print_maze(this_maze,player);
         }
-        move(&this_maze, &player, input);
+        move(this_maze, player, input);
         // win
-        if (has_won(&this_maze, &player))
+        if (has_won(this_maze, player))
         {
             printf("Congratulations, you have reached the exit!\n");
             break;
         }
     }
     // return, free, exit
-    free_maze(&this_maze);
+    free_maze(this_maze);
     return EXIT_SUCCESS;
 }
