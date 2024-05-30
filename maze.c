@@ -62,6 +62,9 @@ int create_maze(maze *this, int height, int width)
  */
 void free_maze(maze *this)
 {
+    for (int i = 0; i < this->height; i++) {
+        free(this->map[i]);
+    }
     free(this->map);
 }
 
@@ -155,17 +158,29 @@ int get_height(FILE *file)
  */
 int read_maze(maze *this, FILE *file)
 {
-    this->height = get_height(file);
-    fseek(file,0,SEEK_SET);
     this->width = get_width(file);
-    fseek(file,0,SEEK_SET);
-    if(this->height <= MIN_DIM || this->width <= MIN_DIM){
+    rewind(file);
+    this->height = get_height(file);
+    rewind(file);
+    int height = this->height;
+    int width = this->width;
+    int count = 0;
+    char str[MAX_DIM];
+    if(height < MIN_DIM || width < MIN_DIM){
         return 1;
     }
-    for(int i=0;i<this->height;i++){
-        fgets(this->map[i],this->width,file);
-        this->map[i][this->width] = '\0';
-        for(int j = 0;j<this->width;j++){
+    this->map = (char **)malloc(height * sizeof(char *));
+    for (int i = 0; i < height; i++) {
+        this->map[i] = (char *)malloc((width + 1) * sizeof(char));
+    }
+    while (fgets(str,sizeof(str),file))
+    {
+       strncpy(this->map[count], str, width);
+       this->map[count][width] = '\0';
+       count++;
+    }
+    for(int i=0;i<height;i++){
+        for(int j=0;j<width;j++){
             if(this->map[i][j] == 'S'){
                 this->start.x = j;
                 this->start.y = i;
@@ -216,9 +231,7 @@ void print_maze(maze *this, coord *player)
  * @param direction The desired direction to move in
  */
 void move(maze *this, coord *player, char direction)
-{
-    player->x = this->start.x;
-    player->y = this->start.y;  
+{  
     if(direction == 'W'||direction == 'w'){
         player->y -= 1;
         if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
@@ -272,40 +285,32 @@ int has_won(maze *this, coord *player)
 int main(int argc, char *argv[])
 {
     // check args
-    /*if (argc != 2)
+    if (argc != 2)
     {
-        fprintf(stderr, "Usage: ./maze <mazefile path>\n");
-        return EXIT_ARG_ERROR;
-    }*/
+       fprintf(stderr, "Usage: ./maze <mazefile path>\n");
+       return EXIT_ARG_ERROR;
+    }
     // set up some useful variables (you can rename or remove these if you want)
-    coord *player;
+    coord *player = malloc(sizeof(coord));
     maze *this_maze = malloc(sizeof(maze));
     FILE *f;
     char input;
-    // open and validate mazefile
-    f = fopen("15x9.txt", "r");
-    if(read_maze(this_maze,f) == 1){
-        printf("no");
-    }else if(read_maze(this_maze,f) == 0){
-        printf("yes");
-    }else{
-        printf("?");
-    }
-    /*if (!f)
+    //open and validate mazefile
+    f = fopen(argv[1], "r");
+    if (!f)
     {
         fprintf(stderr, "Failed to read maze file\n");
         return EXIT_FILE_ERROR;
     }
-    // read in mazefile to struct
+    //read in mazefile to struct
     if(read_maze(this_maze,f) == 1){
         fclose(f);
         return EXIT_FILE_ERROR;
     }
     player->x = this_maze->start.x;
     player->y = this_maze->start.y;
-    printf(this_maze);*/
     // maze game loop
-    /*while (1)
+    while (1)
     {
         scanf(" %c", &input);
         if (input == 'M' || input == 'm')
@@ -323,5 +328,5 @@ int main(int argc, char *argv[])
     // return, free, exit
     fclose(f);
     free_maze(this_maze);
-    return EXIT_SUCCESS;*/
+    return EXIT_SUCCESS;
 }
