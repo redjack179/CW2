@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 // defines for max and min permitted dimensions
 #define MAX_DIM 100
@@ -166,6 +167,7 @@ int read_maze(maze *this, FILE *file)
     int width = this->width;
     int count = 0;
     char str[MAX_DIM];
+    const char *cellset = "#SE ";
     if(height < MIN_DIM || width < MIN_DIM){
         return 1;
     }
@@ -188,6 +190,9 @@ int read_maze(maze *this, FILE *file)
             if(this->map[i][j] == 'E'){
                 this->end.x = j;
                 this->end.y = i;
+            }
+            if(isCharInSet(this->map[i][j], cellset)){
+                return 1;
             }
         }
     }
@@ -233,32 +238,49 @@ void print_maze(maze *this, coord *player)
 void move(maze *this, coord *player, char direction)
 {  
     if(direction == 'W'||direction == 'w'){
-        player->y -= 1;
-        if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
+        if(this->map[player->y-1][player->x] == '#'){
             player->y += 1;
             printf("inavlid move");
         }
+        if(player->y - 1>this->height||player->y - 1 < 0){
+            player->y += 1;
+            printf("invlid move");
+        }
+        player->y -= 1;
     }
     else if(direction == 'A'||direction == 'a'){
         player->x -= 1;
-        if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
+        if(this->map[player->y][player->x-1] == '#'){
             player->x += 1;
             printf("inavlid move");
         }
+        if(player->x - 1 > this->width||player->x - 1 <0){
+            player->x += 1;
+            printf("invlid move");
+        }
+        player->x -= 1;
     }
     else if(direction == 'S'||direction == 's'){
-        player->y += 1;
-        if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
+        if(this->map[player->y+1][player->x] == '#'){
             player->y -= 1;
             printf("inavlid move");
         }
+        if(player->y + 1 >this->height||player->y + 1 <0){
+            player->y -= 1;
+            printf("invlid move");
+        }
+        player->y += 1;
     }
     else if(direction == 'D'||direction == 'd'){
-        player->x += 1;
-        if(this->map[player->y][player->x] == '#'||player->x > this->width||player->y >this->height||player->x < 0||player->y <0){
+        if(this->map[player->y][player->x+1] == '#'){
             player->x -= 1;
             printf("inavlid move");
         }
+        if(player->x + 1> this->width||player->x + 1< 0){
+            player->x -= 1;
+            printf("invlid move");
+        }
+        player->x += 1;
     }     
 }
 
