@@ -73,30 +73,35 @@ void free_maze(maze *this)
  */
 int get_width(FILE *file)
 {   
-    char line[MAX_DIM];
     int maze_width[MAX_DIM];
     int i = 0;
+    int j = 0;
     int length;
-    int isEquals = 1;
-    while(fgets(line, sizeof(line), file))
+    int ch;
+    int count = 1;
+    while (ch = fgetc(file) != EOF)
     {
-        if (maze_width[i] >= MIN_DIM && maze_width[i] <= MAX_DIM)
-        {
-            maze_width[i] = strlen(line);
-            i++;
+        fseek(file,i,SEEK_SET);
+        ch = fgetc(file);
+        i++;
+        if(ch == '\n'){
+            maze_width[j] = i;
+            j++;
         }
     }
-    length = sizeof(maze_width)/sizeof(maze_width[0]);
-    for(int j = 0;j<length-1;j++){
-        if(maze_width[j]!=maze_width[j+1]){
-            isEquals = 0;
-        }
-    }
-    fclose(file);
-    if(isEquals){
-        return maze_width[0];
-    }else{
+    if(maze_width[0]>MAX_DIM || maze_width[0]<MIN_DIM){
         return 0;
+    }
+    for(int m=1;m<MAX_DIM;m++){
+        if(maze_width[m]-maze_width[m-1] == maze_width[0]){
+            count++;
+        }
+    }
+    if(count != j){
+        return 0;
+    }else if (count == j)
+    {
+        return maze_width[0]-1;
     }
 }
 
@@ -108,34 +113,35 @@ int get_width(FILE *file)
  */
 int get_height(FILE *file)
 {
-    //使用fseek和
-    char line[MAX_DIM];
-    int count=0;
-    int data[MAX_DIM];
+    int maze_width[MAX_DIM];
     int i = 0;
+    int j = 0;
     int length;
-    int isEquals = 1;
-    while(fgets(line,sizeof(line),file)){
-        data[i] = strlen(line);
-        i++;
-        count++;
-    }
-    length = sizeof(data)/sizeof(data[0]);
-    for(int j = 0;j<length;j++){
-        if(data[j] != data[j+1]){
-            isEquals = 0;
-        }
-    }
-    fclose(file);
-    if(count<=MAX_DIM&&count>=MIN_DIM){
-        if(isEquals){
-            return count;
-        }else{
-            return 0;
-        }
-    }else
+    int ch;
+    int count = 1;
+    while (ch = fgetc(file) != EOF)
     {
+        fseek(file,i,SEEK_SET);
+        ch = fgetc(file);
+        i++;
+        if(ch == '\n'){
+            maze_width[j] = i;
+            j++;
+        }
+    }
+    if(j>MAX_DIM || j<MIN_DIM){
         return 0;
+    }
+    for(int m=1;m<MAX_DIM;m++){
+        if(maze_width[m]-maze_width[m-1] == maze_width[0]){
+            count++;
+        }
+    }
+    if(count != j){
+        return 0;
+    }else if (count == j)
+    {
+        return j;
     }
     
 }
@@ -153,6 +159,9 @@ int read_maze(maze *this, FILE *file)
     fseek(file,0,SEEK_SET);
     this->width = get_width(file);
     fseek(file,0,SEEK_SET);
+    if(this->height <= MIN_DIM || this->width <= MIN_DIM){
+        return 1;
+    }
     for(int i=0;i<this->height;i++){
         fgets(this->map[i],this->width,file);
         this->map[i][this->width] = '\0';
@@ -168,8 +177,6 @@ int read_maze(maze *this, FILE *file)
         }
     }
     return 0;
-
-
 }
 
 /**
@@ -258,38 +265,47 @@ int has_won(maze *this, coord *player)
     }
 }
 
+/// @brief 
+/// @param argc 
+/// @param argv 
+/// @return 
 int main(int argc, char *argv[])
 {
     // check args
-    if (argc != 2)
+    /*if (argc != 2)
     {
         fprintf(stderr, "Usage: ./maze <mazefile path>\n");
         return EXIT_ARG_ERROR;
-    }
+    }*/
     // set up some useful variables (you can rename or remove these if you want)
     coord *player;
     maze *this_maze = malloc(sizeof(maze));
     FILE *f;
-
+    char input;
     // open and validate mazefile
-    f = fopen(argv[1], "r");
-    if (!f)
+    f = fopen("15x9.txt", "r");
+    if(read_maze(this_maze,f) == 1){
+        printf("no");
+    }else if(read_maze(this_maze,f) == 0){
+        printf("yes");
+    }else{
+        printf("?");
+    }
+    /*if (!f)
     {
+        fprintf(stderr, "Failed to read maze file\n");
         return EXIT_FILE_ERROR;
     }
     // read in mazefile to struct
-    if (read_maze(this_maze, f))
-    {
-        fprintf(stderr, "Failed to read maze file\n");
+    if(read_maze(this_maze,f) == 1){
         fclose(f);
-        return EXIT_MAZE_ERROR;
+        return EXIT_FILE_ERROR;
     }
-    fclose(f);
     player->x = this_maze->start.x;
     player->y = this_maze->start.y;
+    printf(this_maze);*/
     // maze game loop
-    char input;
-    while (1)
+    /*while (1)
     {
         scanf(" %c", &input);
         if (input == 'M' || input == 'm')
@@ -305,6 +321,7 @@ int main(int argc, char *argv[])
         }
     }
     // return, free, exit
+    fclose(f);
     free_maze(this_maze);
-    return EXIT_SUCCESS;
+    return EXIT_SUCCESS;*/
 }
